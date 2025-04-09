@@ -55,6 +55,64 @@ app.get('/feed', async(req, res)=>{
     }
 });
 
+// find by _id
+app.get('/id', async(req, res)=>{
+    const id = req.body._id
+    try{
+        const users = await User.findById(id);
+        if (users.length === 0){
+            res.send('users doesnot exist');
+        }
+        else{
+            res.send(users);
+        }
+    }
+    catch (err){
+        res.send("something went wrong");
+    }
+});
+
+//delete data from the database
+app.delete("/user", async(req, res)=>{
+    const userId = req.body.userId;
+    try{
+        const users = await User.findByIdAndDelete(userId);
+        res.send("user deleted successfully");
+    }
+    catch (err){
+        res.send("something went wrong");
+    }
+});
+
+//update data of the user
+// app.patch('/user', async(req, res)=>{
+//     const userId = req.body.userId;
+//     const data = req.body;
+//     try{
+//         const user = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument:"after"});
+//         console.log(user);
+//         res.send("user updated successfully");
+//     }
+//     catch(err){
+//         res.status(400).send("something went wrong");
+//     }
+// });
+
+//update data of the user by emailid
+app.patch('/user', async(req, res)=>{
+    const emailId = req.body.emailId;
+    const data = req.body;
+    try{
+        const user = await User.find({emailId: emailId}, data);
+        console.log(user);
+        res.send("user updated successfully - email");
+    }
+    catch(err){
+        res.status(400).send("something went wrong");
+    }
+});
+
+
 connectDB()
 .then(() =>{
     console.log("database connection established..");
