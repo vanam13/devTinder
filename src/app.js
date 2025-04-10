@@ -8,7 +8,6 @@ app.use(express.json());
 
 app.post('/signup', async(req,res)=>{
     // creating a new instance of the user model
-    console.log(req.body);
     const user = new User(req.body);
     
     // returns promise and inserts data into the database
@@ -17,7 +16,7 @@ app.post('/signup', async(req,res)=>{
         res.send("user added successfully");
     }
     catch(err){
-        res.status(400).send("error saving the user: ", err.message);
+        res.status(400).send("error saving the user: " + err.message);
     }
 });
 
@@ -85,32 +84,41 @@ app.delete("/user", async(req, res)=>{
 });
 
 //update data of the user
+app.patch('/user/:userId', async(req, res)=>{
+    const userId = req.params?.userId;
+    const data = req.body;
+    try{
+        const ALLOWED_UPDATES = ["userId", "photoUrl", "gender", "age","skills"];
+        const isUpdateAllowed = Object.keys(data).every((k)=> ALLOWED_UPDATES.includes(k));
+        if (!isUpdateAllowed){
+            throw new Error("update not allowed")
+        }
+        if(data?.skills.length > 10){
+            throw new Error("skills cannot be more than 10");
+        }
+        const user = await User.findByIdAndUpdate({_id:userId}, data, {
+            runValidators: true,
+        });
+        res.send("user updated successfully");
+    }
+    catch(err){
+        res.status(400).send("UPDATE FAILED "+err.message);
+    }
+});
+
+//update data of the user by emailid
 // app.patch('/user', async(req, res)=>{
-//     const userId = req.body.userId;
+//     const emailId = req.body.emailId;
 //     const data = req.body;
 //     try{
-//         const user = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument:"after"});
+//         const user = await User.find({emailId: emailId}, data);
 //         console.log(user);
-//         res.send("user updated successfully");
+//         res.send("user updated successfully - email");
 //     }
 //     catch(err){
 //         res.status(400).send("something went wrong");
 //     }
 // });
-
-//update data of the user by emailid
-app.patch('/user', async(req, res)=>{
-    const emailId = req.body.emailId;
-    const data = req.body;
-    try{
-        const user = await User.find({emailId: emailId}, data);
-        console.log(user);
-        res.send("user updated successfully - email");
-    }
-    catch(err){
-        res.status(400).send("something went wrong");
-    }
-});
 
 
 connectDB()
