@@ -45,13 +45,15 @@ app.post('/login', async(req, res)=>{
         if(!user){
             throw new Error("email id does not exist in the DB");
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validataPassword(password);
         if (isPasswordValid){
             //create a JWT token
 
-            const token = await jwt.sign({_id: user._id}, "Dev@Tinder7");
-            console.log(token)
-            res.cookie("token",token);
+            const token = await user.getJWT();
+         
+            res.cookie("token",token, {
+                expires: new Date(Date.now() + 8* 3600000),
+            });
 
             res.send("login successfull!!");
         }
@@ -157,6 +159,12 @@ app.patch('/user/:userId', async(req, res)=>{
     catch(err){
         res.status(400).send("UPDATE FAILED "+err.message);
     }
+});
+
+app.post('/sendConnectionRequest',userAuth, async(req, res)=>{
+    const user = req.user;
+    console.log('connection request sent');
+    res.send(user.firstName + " sent the connection request");
 });
 
 //update data of the user by emailid
