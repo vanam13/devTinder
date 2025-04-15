@@ -1,7 +1,7 @@
 const express = require('express');
 
-const {connectDB} = require("./config/database");
-const {User} = require("./models/user")
+const connectDB = require("./config/database");
+const User = require("./models/user")
 const app = express();
 const { validateSignUpData } = require('./utils/validation');
 const  bcrypt  = require('bcrypt');
@@ -45,7 +45,7 @@ app.post('/login', async(req, res)=>{
         if(!user){
             throw new Error("email id does not exist in the DB");
         }
-        const isPasswordValid = await user.validataPassword(password);
+        const isPasswordValid = await user.validatePassword(password);
         if (isPasswordValid){
             //create a JWT token
 
@@ -122,7 +122,7 @@ app.get('/id', async(req, res)=>{
         }
     }
     catch (err){
-        res.send("something went wrong");
+        res.send("something went wrong" + err.message);
     }
 });
 

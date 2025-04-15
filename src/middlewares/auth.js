@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/user');
+const User  = require('../models/user');
 
 const userAuth = async (req,res,next)=>{
 try{
@@ -11,7 +11,7 @@ try{
    const decodedObj = await jwt.verify(token, "Dev@Tinder7");
 
    const {_id} = decodedObj;
-   
+
    const user = await User.findById(_id);
    if(!user){
     throw new Error("user not found");
@@ -24,4 +24,4 @@ catch(err){
 }
 };
 
-module.exports = {userAuth}
+module.exports = {userAuth};
